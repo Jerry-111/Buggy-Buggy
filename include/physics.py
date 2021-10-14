@@ -3,7 +3,7 @@ import include.rooms
 import numpy as np
 import math
 
-Gravity = 0.981
+Gravity = 0.98
 MovementAcceleration = 0.25
 
 TerminalVelocityX = 2.5
