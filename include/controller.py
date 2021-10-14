@@ -3,32 +3,35 @@ import time
 
 class input_handling:
     def __init__(self,bd_id):
-        self.left, self.right, self.up, self.attack, self.leave, self.timer = [False] * 6
-        self.stop_move_left = False
-        self.stop_move_right = False
+        self.attack, self.leave, self.timer = [False] * 3
         self.reset = False
         self.bd_id = bd_id
+        self.leftPressed = False
+        self.rightPressed = False
+        self.downPressed = False
+        self.upPressed = False
 
-    def check_event(self):
-        # we don't need these two lines
-        # self.attack = False
-        # self.stop_move_right,self.stop_move_right = [False] * 2
+    def getInput(self):
+        xInput, yInput = 0, 0
+
 
         for event in pygame.event.get():
-            self.stop_move_right, self.stop_move_left = [False] * 2
             if event.type == pygame.QUIT:
                 self.leave = True
-                #pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.leave = True
+                
                 if event.key == pygame.K_a:
-                    self.left = True
+                    self.leftPressed = True
                 if event.key == pygame.K_d:
-                    self.right = True
+                    self.rightPressed = True
+                if event.key == pygame.K_s:
+                    self.downPressed = True
                 if event.key == pygame.K_w:
-                    self.up = True
+                    self.upPressed = True
+
                 if event.key == pygame.K_j:
                     self.attack = True
                 if event.key == pygame.K_t:
@@ -40,30 +43,39 @@ class input_handling:
                 if event.key == pygame.K_5 and event.key == pygame.K_TAB:
                     bg_id = 5
             if event.type == pygame.KEYUP:
-                # You don't need this
-                # if event.key == pygame.K_ESCAPE:
-                #     self.leave = False
-                if event.key == pygame.K_a:
-                    self.left = False
-                    self.stop_move_left = True
-                if event.key == pygame.K_d:
-                    self.right = False
-                    self.stop_move_right = True
-                if event.key == pygame.K_w:
-                    self.up = False
                 if event.key == pygame.K_SPACE:
                     self.reset = False
+                if event.key == pygame.K_a:
+                    self.leftPressed = False
+                if event.key == pygame.K_d:
+                    self.rightPressed = False
+                if event.key == pygame.K_s:
+                    self.downPressed = False
+                if event.key == pygame.K_w:
+                    self.upPressed = False
+ 
 
-                    # self.stop_move = True
+        if self.leftPressed and self.rightPressed:
+            xInput = 0
+        if self.leftPressed and not self.rightPressed:
+            xInput = -1
+        if self.rightPressed and not self.leftPressed:
+            xInput = 1
+        if not self.leftPressed and not self.rightPressed:
+            xInput = 0
 
+        if self.upPressed and self.downPressed:
+            yInput = 0
+        if self.upPressed and not self.downPressed:
+            yInput = 1
+        if self.downPressed and not self.upPressed:
+            yInput = -1
+        if not self.upPressed and not self.downPressed:
+            yInput = 0 
 
-        return [self.left, self.right, self.up, self.attack, self.leave, self.stop_move_left, self.stop_move_right, self.timer, self.reset, self.bd_id]
-
+        return [xInput, yInput, self.attack, self.leave, self.timer, self.reset, self.bd_id]
 
     def check_mouse(self, bg_id, blue_screen):
-        # we don't need these two lines
-        # self.attack = False
-        # self.stop_move_right,self.stop_move_right = [False] * 2
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.leave = True

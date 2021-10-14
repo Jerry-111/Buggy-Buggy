@@ -62,11 +62,7 @@ def main():
     while running:
         r = rs[bg_id]
         background = bg.background(bg_id)
-        # if c.x == 0 and bg_id > 1:
-        #     bg_id -= 1
-        #     c.y = HEIGHT - c.h - 53
-        #left, right, up, attack, leave, stop_move_left, stop_move_right, timer, reset, background_id = controller.check_event()
-        #bg_id = background_id
+
         if blue_screen:
             background = pygame.image.load(f"./assets/backgrounds/blue_screen.png")
             background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -94,18 +90,18 @@ def main():
             surface.blit(background, (0, 0))
             pygame.display.flip()
             end = time.time()
-            left, right, up, attack, leave, stop_move_left, stop_move_right, timer, reset, background_id = controller.check_event()
-            #if bg_id != background_id:
-                #bg_id = background_id
-            # bg_id = bg
+            
+            receivedInputX, receivedInputY, attack, leave, timer, reset, background_id = controller.getInput()
+
             if leave:
                 running = False
                 pygame.quit()
-                #pygame.quit()
+
 
         elif bg_id == 5 and 6 * 32 * (1000 / 576) <= c.x <= 13 * 32 * (1000 / 576) and c.y >= 9 * 32 * (667 / 384):
-            print(c.x, c.y)
-            left, right, up, attack, leave, stop_move_left, stop_move_right, timer, reset, background_id = controller.check_event()
+
+            receivedInputX, receivedInputY, attack, leave, timer, reset, background_id = controller.getInput()
+
             if leave:
                 running = False
                 pygame.quit()
@@ -140,13 +136,9 @@ def main():
 
             last_latency = end - start
             start = time.time()
-            left, right, up, attack, leave, stop_move_left, stop_move_right, timer, reset, background_id = controller.check_event()
-            # print(left, right, up, attack, leave, stop_move_left, stop_move_right)
-            left_col, right_col = p.side_by_side(r)
-            head = p.head_by_head(r)
-            #for i in monster_list:
-                #i.move(last_latency)
 
+            receivedInputX, receivedInputY, attack, leave, timer, reset, background_id = controller.getInput()
+            
             if reset == True:
                 c.x, c.y = 0, HEIGHT - c.h - 53
             if leave:
@@ -156,31 +148,14 @@ def main():
                 bg_id += 1
                 c.y = HEIGHT - c.h - 53
                 c.x = 0
-            '''
-            if left and not left_col:
-                c.x -= c.speedx
-                c.status_avatar = c.move_left
-            if right and not right_col:
-                c.x += c.speedx
-                c.status_avatar = c.move_right
-            if stop_move_right:
-                c.status_avatar = c.stand_left
-            if stop_move_left:
-                c.status_avatar = c.stand_right
-            if up and not head:
-                c.y -= c.speedy
-            '''
-            c.y = p.physic_handling(last_latency, r)
-            #if attack:
-            #    print(f"[INFO] Player has attacked")
 
+            c.velocityX, c.velocityY = p.recalculateVelocity(c.velocityX, c.velocityY, receivedInputX, receivedInputY)
+            
             collides = []
             for i in monster_list:
                 collides.append(math.sqrt((i.x / 18 * WIDTH - c.x) ** 2 + (i.y / 12 * HEIGHT - c.y) ** 2))
-                #print(min(collides))
             if collides != []:
                 if min(collides) < 60:
-                    # dead
                     wasted = True
                     p.in_air_time += last_latency
                     c.y + 0.25 * 40 * (p.in_air_time ** 2)
@@ -190,23 +165,11 @@ def main():
 
             surface.blit(background, (0, 0))
             if wasted == False:
-                c.move(left, right, up, stop_move_left, stop_move_right, left_col, right_col, head)
+                c.updateMovement()
                 surface = include.renderer.render(surface=surface, n={(c.x, c.y): c.status_avatar})
                 surface = include.renderer.render(surface=surface, n=monster_render_list)
             pygame.display.flip()
-            #print(1 / last_latency)
             end = time.time()
-            '''
-            time_end = time.time()
-            on_going = time_end - time_start
-            print(on_going)
-            '''
-
-
-        # print(math.sqrt((i.x-c.x)**2 + (i.y-c.y)**2))
-
-        # FPS display
-        # print(f"[INFO] FPS: {1/last_latency}")
 
 if __name__ == '__main__':
     main()
